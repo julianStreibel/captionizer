@@ -3,6 +3,8 @@
 const express = require('express');
 const cors = require('cors');
 
+const picture = require('./src/routes/picture');
+
 // Constants
 const PORT = 8080;
 const HOST = '0.0.0.0';
@@ -15,6 +17,7 @@ app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
 // Routes
+app.use('/api/v1/picture', picture)
 
 
 // test
