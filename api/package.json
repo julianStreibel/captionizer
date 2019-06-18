@@ -8,6 +8,7 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "clarifai": "^2.9.0",
     "cors": "^2.8.5",
     "express": "^4.16.1",
     "multer": "^1.4.1",
