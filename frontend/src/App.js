@@ -7,24 +7,31 @@ class App extends Component {
     super(props);
     this.state = {
       init: false,
-      list: []
+      captions: []
     }
   }
 
   componentDidMount() {
     fetch("http://0.0.0.0:8080/api/v1/test")
       .then(res => res.json())
-      .then((res) => this.setState({ init: true, list: res }))
+      .then((res) => this.setState({ init: true, captions: res.captions, hashtags: res.hashtags }))
   }
 
   render() {
-    const { init, list } = this.state;
+    const { init, captions, hashtags } = this.state;
     return (
       <React.Fragment>
-        {init && list}
+        <h1>Captions</h1>
+        {init && captions.map(caption => <p>{caption}</p>)}
+        <br />
+        <p>.</p>
+        <p>.</p>
+        <p>.</p>
+        <p>.</p>
+        <p>.</p>
+        {init && hashtags}
         <br />
         <RedButton>Hi</RedButton>
-        <br />
         <br />
         <DivButton
           color={"orange"}
