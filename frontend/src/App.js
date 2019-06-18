@@ -12,7 +12,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    fetch("http://0.0.0.0:8080/api/v1/test")
+    fetch("http://0.0.0.0:8080/api/v1/picture")
       .then(res => res.json())
       .then((res) => this.setState({ init: true, captions: res.captions, hashtags: res.hashtags }))
   }
@@ -28,8 +28,8 @@ class App extends Component {
         <p>.</p>
         <p>.</p>
         <p>.</p>
-        <p>.</p>
-        {init && hashtags}
+        <h3>Bild url muss noch in api/routes/picture gesetzt werden bis upload fertig</h3>
+        {init && hashtags.map(h => h.replace(" ", "") + " ")}
         <br />
         <RedButton>Hi</RedButton>
         <br />
