@@ -1,8 +1,9 @@
 const express = require('express');
 const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
+const fs = require('fs');
 const Clarifai = require('clarifai');
 const osmosis = require('osmosis');
+
 
 // Clarifai
 const app = new Clarifai.App({
@@ -19,17 +20,16 @@ router.use((req, res, next) => {
 });
 
 // uploads picture and return list of hashtags and captions
-router.put('/', upload.single('image'), async (req, res) => {
-});
-
-router.get('/', async (req, res) => {
-    pictureUrl = "https://www.woman.at/_storage/asset/10316179/storage/womanat:key-visual/file/136921909/marie%20fe%20jake%20snow.jpg";
+router.post('/', multer({ dest: './uploads/' }).single("image"), async (req, res) => {
+    // file to base64
+    const BASE64 = new Buffer.from(fs.readFileSync(req.file.path)).toString("base64");
     // get predictions
-    let predictions = await predict(pictureUrl);
+    const predictions = await predict(BASE64);
     // get hashtags
     let hashtags = await getHashtags(predictions);
+    // get 30 hashtags
     hashtags = hashtags.splice(0, 29).map(el => el.tag)
-    console.log(hashtags)
+    // return hashtags and captions 
     res.json({
         hashtags: hashtags,
         captions: ["We gonna party like it`s your birthday",
@@ -69,11 +69,8 @@ const getHashtags = (predictions) => {
 }
 
 // returns promis with 3 predictions
-const predict = (pictureUrl) => {
-    return app.models.initModel({ id: Clarifai.GENERAL_MODEL, version: "aa7f35c01e0642fda5cf400f543e7c40" })
-        .then(generalModel => {
-            return generalModel.predict(pictureUrl);
-        })
+const predict = (BASE64) => {
+    return app.models.predict(Clarifai.GENERAL_MODEL, { base64: BASE64 })
         .then(response => {
             const concepts = response['outputs'][0]['data']['concepts']
             predictions = concepts.map(el => el.name).slice(0, 3) // first 3 predictions
