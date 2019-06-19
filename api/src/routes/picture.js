@@ -30,7 +30,12 @@ router.post('/', multer({ dest: './uploads/' }).single("image"), async (req, res
     // get 30 hashtags
     hashtags = hashtags.splice(0, 29).map(el => el.tag)
     // get captions
-    let quotes = await getQuotes(predictions);
+    let quotes = await getQuotes(predictions[0]);
+    let i = 1;
+    while (quotes.length < 4) {
+        quotes = await getQuotes(predictions[i]);
+        i++;
+    }
     // return hashtags and captions 
     res.json({
         predictions: predictions,
@@ -44,12 +49,12 @@ const errHandler = (err) => {
 }
 
 // return promis with captiond from predictions output = [... {author: "einstein", quote: "blabalhaha"}, ...]
-const getQuotes = (predictions) => {
+const getQuotes = (prediction) => {
     return new Promise((resolve, reject) => {
         let list = [];
         osmosis
             // Scrape top hashtags
-            .get(`https://www.goodreads.com/quotes/tag/${predictions[0]}`)  // predictions[0]
+            .get(`https://www.goodreads.com/quotes/tag/${prediction}`)
             // All hashtags exist inside of a div with class 
             .find('.quoteDetails')
             // Create an object of data
@@ -61,7 +66,7 @@ const getQuotes = (predictions) => {
                 // Each iteration, push the data into our array
                 list.push(data);
             })
-            .error(err => reject(err))
+            .error(err => resolve([]))
             .done(() => resolve(list.filter(q => q.quote.length < 1000).map(q => {
                 q.quote = q.quote.split('“')[1].split('”')[0]
                 return q
