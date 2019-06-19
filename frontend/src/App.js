@@ -55,7 +55,7 @@ class App extends Component {
     const { file } = this.state;
     let formData = new FormData();
     formData.append("image", file)
-    fetch("http://0.0.0.0:8080/api/v1/picture", { method: "post", body: formData })
+    fetch("http://127.0.0.1:8080/api/v1/picture", { method: "post", body: formData })
       .then(res => res.json())
       .then((res) => this.setState({ init: true, captions: res.captions, hashtags: res.hashtags }))
   }
