@@ -3,7 +3,6 @@ const multer = require('multer');
 const fs = require('fs');
 const Clarifai = require('clarifai');
 const osmosis = require('osmosis');
-const fetch = require("node-fetch");
 
 
 // Clarifai
@@ -26,7 +25,6 @@ router.post('/', multer({ dest: './uploads/' }).single("image"), async (req, res
     const BASE64 = new Buffer.from(fs.readFileSync(req.file.path)).toString("base64");
     // get predictions
     const predictions = await predict(BASE64);
-    console.log(predictions);
     // get hashtags
     let hashtags = await getHashtags(predictions);
     // get 30 hashtags
@@ -43,20 +41,8 @@ router.post('/', multer({ dest: './uploads/' }).single("image"), async (req, res
     })
 });
 
-router.get('/', async (req, res) => {
-    const q = await getQuotes();
-    console.log(q.quoteText)
-});
-
 const errHandler = (err) => {
     console.error("Error: ", err);
-}
-
-// return promis with quotes and their author
-const getQuotes = () => {
-    console.log("start2")
-    return fetch("https://api.forismatic.com/api/1.0/?method=getQuote&key=457653&format=json&lang=en")
-        .then((res) => res.json())
 }
 
 // return promis with hastags from predictions output = [... { tag: '# explore' }, ...]
