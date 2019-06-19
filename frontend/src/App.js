@@ -15,7 +15,7 @@ class App extends Component {
   }
 
   render() {
-    const { init, captions, hashtags, file } = this.state;
+    const { init, captions, hashtags, file, predictions } = this.state;
     return (
       <React.Fragment>
         <FormGroup>
@@ -28,13 +28,11 @@ class App extends Component {
         </FormGroup>
         <Button disabled={!file} onClick={this.upload}>Upload</Button>
         {init && <React.Fragment>
-          <h1>Captions</h1>
-          {init && captions.map(caption => <p>{caption}</p>)}
-          <br />
-          <p>.</p>
-          <p>.</p>
-          <p>.</p>
-          <p>.</p>
+          <h1>Predictions</h1>
+          {init && predictions.map(h => h + ", ")}
+          <h3>Captions</h3>
+          {init && captions.map(caption => <p>"{caption.quote}" <br /> {caption.author}</p>)}
+          <h3>Hashtags</h3>
           {init && hashtags.map(h => h.replace(" ", "") + " ")}
           <br />
           <RedButton>Hi</RedButton>
@@ -57,7 +55,7 @@ class App extends Component {
     formData.append("image", file)
     fetch("http://127.0.0.1:8080/api/v1/picture", { method: "post", body: formData })
       .then(res => res.json())
-      .then((res) => this.setState({ init: true, captions: res.captions, hashtags: res.hashtags }))
+      .then((res) => this.setState({ init: true, captions: res.captions, hashtags: res.hashtags, predictions: res.predictions }))
   }
 }
 

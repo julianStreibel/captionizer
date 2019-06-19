@@ -26,23 +26,47 @@ router.post('/', multer({ dest: './uploads/' }).single("image"), async (req, res
     // get predictions
     const predictions = await predict(BASE64);
     // get hashtags
-    let hashtags = await getHashtags(predictions);
+    let hashtags = await getHashtags(predictions.slice(0, 3)); // first 3 predictions
     // get 30 hashtags
     hashtags = hashtags.splice(0, 29).map(el => el.tag)
+    // get captions
+    let quotes = await getQuotes(predictions);
     // return hashtags and captions 
     res.json({
+        predictions: predictions,
         hashtags: hashtags,
-        captions: ["We gonna party like it`s your birthday",
-            "The more money we come across, the more problems we see",
-            "Drop it like it's hot",
-            "To live doesn't mean you're alive",
-            "I'm feelin' mysel"
-        ]
+        captions: quotes
     })
 });
 
 const errHandler = (err) => {
     console.error("Error: ", err);
+}
+
+// return promis with captiond from predictions output = [... {author: "einstein", quote: "blabalhaha"}, ...]
+const getQuotes = (predictions) => {
+    return new Promise((resolve, reject) => {
+        let list = [];
+        osmosis
+            // Scrape top hashtags
+            .get(`https://www.goodreads.com/quotes/tag/${predictions[0]}`)  // predictions[0]
+            // All hashtags exist inside of a div with class 
+            .find('.quoteDetails')
+            // Create an object of data
+            .set({
+                quote: '.quoteText',
+                author: '.quoteText > span'
+            })
+            .data(data => {
+                // Each iteration, push the data into our array
+                list.push(data);
+            })
+            .error(err => reject(err))
+            .done(() => resolve(list.filter(q => q.quote.length < 1000).map(q => {
+                q.quote = q.quote.split('“')[1].split('”')[0]
+                return q
+            })));
+    });
 }
 
 // return promis with hastags from predictions output = [... { tag: '# explore' }, ...]
@@ -65,15 +89,14 @@ const getHashtags = (predictions) => {
             .error(err => reject(err))
             .done(() => resolve(list));
     });
-
 }
 
-// returns promis with 3 predictions
+// returns promis with predictions
 const predict = (BASE64) => {
     return app.models.predict(Clarifai.GENERAL_MODEL, { base64: BASE64 })
         .then(response => {
             const concepts = response['outputs'][0]['data']['concepts']
-            predictions = concepts.map(el => el.name).slice(0, 3) // first 3 predictions
+            predictions = concepts.map(el => el.name)
             return predictions;
         })
 }
