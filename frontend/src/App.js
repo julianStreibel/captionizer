@@ -35,7 +35,6 @@ class App extends Component {
           <p>.</p>
           <p>.</p>
           <p>.</p>
-          <h3>Bild url muss noch in api/routes/picture gesetzt werden bis upload fertig</h3>
           {init && hashtags.map(h => h.replace(" ", "") + " ")}
           <br />
           <RedButton>Hi</RedButton>
@@ -54,7 +53,6 @@ class App extends Component {
 
   upload() {
     const { file } = this.state;
-    alert(file)
     let formData = new FormData();
     formData.append("image", file)
     fetch("http://0.0.0.0:8080/api/v1/picture", { method: "post", body: formData })
