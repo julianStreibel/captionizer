@@ -3,7 +3,7 @@ const multer = require('multer');
 const fs = require('fs');
 const Clarifai = require('clarifai');
 const osmosis = require('osmosis');
-
+const axios = require('axios');
 
 // Clarifai
 const app = new Clarifai.App({
@@ -30,10 +30,10 @@ router.post('/', multer({ dest: './uploads/' }).single("image"), async (req, res
     // get 30 hashtags
     hashtags = hashtags.splice(0, 29).map(el => el.tag)
     // get captions
-    let quotes = await getQuotes(predictions[0]);
+    let quotes = await getCaptionsFromInsta(predictions[0]);
     let i = 1;
     while (quotes.length < 4 || i < 3) {
-        quotes.push.apply(quotes, await getQuotes(predictions[i]));
+        quotes.push.apply(quotes, await getCaptionsFromInsta(predictions[i]));
         i++;
     }
     shuffle(quotes);
@@ -47,6 +47,31 @@ router.post('/', multer({ dest: './uploads/' }).single("image"), async (req, res
 
 const errHandler = (err) => {
     console.error("Error: ", err);
+}
+
+// returns captions from insta from the given tag. Data is sortet in relevance
+const getCaptionsFromInsta = async (tag) => {
+
+    return axios.get(`https://www.instagram.com/explore/tags/${tag}/?__a=1`)
+        .then(response => {
+            let data = response.data.graphql.hashtag.edge_hashtag_to_media.edges;
+            data = data.map(d => {
+                if (d.node.edge_media_to_caption.edges.length > 0 && d.node.edge_media_to_caption.edges[0].node.text.split('#'))
+                    caption = d.node.edge_media_to_caption.edges[0].node.text.split('#')[0].replace(/\n/g, '');
+                else
+                    caption = d.node.edge_media_to_caption.edges.length > 0 ? d.node.edge_media_to_caption.edges[0].node.text.replace(/\n/g, '') : null
+
+                return {
+                    quote: caption,
+                    likes: d.node.edge_media_to_comment.count,
+                    comments: d.node.edge_liked_by.count
+                }
+            })
+            return data.sort((a, b) => (b.comments + b.likes - a.comments - a.likes)).filter(c => c.quote && !(c.quote.length < 1)).filter(d => d.comments > 100);
+        })
+        .catch(error => {
+            console.log(error);
+        });
 }
 
 
@@ -102,7 +127,7 @@ const getHashtags = (predictions) => {
                 // Each iteration, push the data into our array
                 list.push(data);
             })
-            .error(err => reject(err))
+            .error(err => resolve([]))
             .done(() => resolve(list));
     });
 }
