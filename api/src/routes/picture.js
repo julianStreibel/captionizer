@@ -32,10 +32,11 @@ router.post('/', multer({ dest: './uploads/' }).single("image"), async (req, res
     // get captions
     let quotes = await getQuotes(predictions[0]);
     let i = 1;
-    while (quotes.length < 4) {
-        quotes = await getQuotes(predictions[i]);
+    while (quotes.length < 4 || i < 3) {
+        quotes.push.apply(quotes, await getQuotes(predictions[i]));
         i++;
     }
+    shuffle(quotes);
     // return hashtags and captions 
     res.json({
         predictions: predictions,
@@ -46,6 +47,16 @@ router.post('/', multer({ dest: './uploads/' }).single("image"), async (req, res
 
 const errHandler = (err) => {
     console.error("Error: ", err);
+}
+
+
+// shuffles an array
+const shuffle = (array) => {
+    let i = 0;
+    while (i < 30) {
+        array.sort(() => Math.random() - 0.5);
+        i++;
+    }
 }
 
 // return promis with captiond from predictions output = [... {author: "einstein", quote: "blabalhaha"}, ...]
@@ -67,7 +78,7 @@ const getQuotes = (prediction) => {
                 list.push(data);
             })
             .error(err => resolve([]))
-            .done(() => resolve(list.filter(q => q.quote.length < 1000).map(q => {
+            .done(() => resolve(list.filter(q => q.quote.length < 210).map(q => {
                 q.quote = q.quote.split('“')[1].split('”')[0]
                 return q
             })));
