@@ -15,8 +15,7 @@ class App extends Component {
     }
     this.handleFileChange = this.handleFileChange.bind(this);
     this.upload = this.upload.bind(this);
-    this.deleteHashtag = this.deleteHashtag.bind(this)
-    this.nextCaption = this.nextCaption.bind(this)
+    this.deleteHashtag = this.deleteHashtag.bind(this);
   }
 
 
@@ -56,8 +55,8 @@ class App extends Component {
                   <Header color={"black"}>Caption</Header>
                   {init &&
                     <React.Fragment>
-                      <Caption>{captions[captionIndex].quote}</Caption>
-                      <NexCaptionButton onClick={this.nextCaption} >Show me a different Caption</NexCaptionButton>
+                      <Caption>{captions[captionIndex % captions.length].quote}</Caption>
+                      <NexCaptionButton onClick={() => this.setState(ps => { return { captionIndex: ps.captionIndex + 1 } })} >Show me a different Caption</NexCaptionButton>
                     </React.Fragment>
                   }
                   <br />
@@ -90,14 +89,6 @@ class App extends Component {
     if (file) {
       let url = URL.createObjectURL(file)
       this.setState({ url: url, file: file })
-    }
-  }
-
-  nextCaption() {
-    if (this.state.captionIndex < this.state.captions.length) {
-      let captionIndex = this.state.captionIndex + 1
-      this.setState({ captionIndex: captionIndex })
-
     }
   }
 
