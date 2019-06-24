@@ -3,8 +3,6 @@ import { FormGroup, Label, Container, Row, Col } from 'reactstrap';
 import Hashtag from "./Components/hashtag"
 import styled from 'styled-components';
 
-const captions = ["Deine Eltern sind auf einem Tennistunier", "If you Know you Know", "If you don't know you you don't know", "I belive I can fly"]
-const hashtags = ["# HUHUH", "# HUHUH", "# HUHUH", "# HUHUH", "# HUHUH"]
 class App extends Component {
   constructor(props) {
     super(props);
@@ -26,8 +24,9 @@ class App extends Component {
   render() {
     const { init, captions, captionIndex, hashtags, file, url } = this.state;
     return (
-      <React.Fragment>
-        <Container>
+      <div style={{ backgroundImage: "linear-gradient(#C9D6FF, #E2E2E2)", minHeight: "100vh" }}>
+
+        <Container >
           <Row>
             <Col className="justify-content-center">
               <Header color={"white"}>Captionize Yo Shit</Header>
@@ -54,18 +53,18 @@ class App extends Component {
                   }
                 </Row>
                 {init && <React.Fragment>
-                  <Header color={"black"}>Captions</Header>
+                  <Header color={"black"}>Caption</Header>
                   {init &&
                     <React.Fragment>
-                      <Caption>{captions[captionIndex]}</Caption>
-                      <NexCaptionButton onClick={this.nextCaption} />
+                      <Caption>{captions[captionIndex].quote}</Caption>
+                      <NexCaptionButton onClick={this.nextCaption} >Show me a different Caption</NexCaptionButton>
                     </React.Fragment>
                   }
                   <br />
-                  <p>.</p>
-                  <p>.</p>
-                  <p>.</p>
-                  <p>.</p>
+                  <Dot src="./record-button.png"></Dot>
+                  <Dot src="./record-button.png"></Dot>
+                  <Dot src="./record-button.png"></Dot>
+                  <Dot src="./record-button.png"></Dot>
                   <Row>
 
                     {init && hashtags.map((h, index) =>
@@ -83,7 +82,7 @@ class App extends Component {
           </Row>
 
         </Container>
-      </React.Fragment>
+      </div>
     );
   }
 
@@ -95,7 +94,7 @@ class App extends Component {
   }
 
   nextCaption() {
-    if (this.state.captionIndex >= this.state.captions.length) {
+    if (this.state.captionIndex < this.state.captions.length) {
       let captionIndex = this.state.captionIndex + 1
       this.setState({ captionIndex: captionIndex })
 
@@ -114,48 +113,71 @@ class App extends Component {
     formData.append("image", file)
     fetch("http://127.0.0.1:8080/api/v1/picture", { method: "post", body: formData })
       .then(res => res.json())
-      .then((res) => this.setState({ init: true, captions: res.captions, hashtags: res.hashtags }))
+      .then((res) => this.setState({ init: true, captions: res.captions, hashtags: res.hashtags, predictions: res.predictions }))
   }
 }
 
+const Dot = styled.img`
+  max-width: 0.4em 
+  display: block;
+  margin: 1.5em 0.5em 
+`
+
+
 const Caption = styled.div`
+    text-align: center;
+    /* border: 2px solid grey; */
+    /* border-radius: 0.5rem; */
+    width: 80%;
+    margin: auto;
+    padding: 0.5rem;
+    font-size: calc(8px + 1vw)
+    font-weight: 
 
 `
 
 const NexCaptionButton = styled.button`
-
+  display: block;
+  margin: 1em auto;
+  color: white;
+  background: #2ecc71;
+  border: none;
+  outline: none !important
+  padding: 1em;
+  border-radius: 0.5rem;
 `
 
 const CaptionButton = styled.button`
-      width: 50%; 
-      margin-top: 7% ; 
-      margin-bottom: 1.5rem
-      padding: 3% ;
-      border-style: solid; 
-      border-width: 3px;
-      border-color: #A9A9A9;
-      background-color: white; 
-      border-radius: 0.5rem
-      outline: none !important 
-      box-shadow: 0 15px 30px 0 rgba(0,0,0,0.11),
-        0 5px 15px 0 rgba(0,0,0,0.08);
+  text-align: center;
+  display: block;
+  cursor: pointer;
+  width: 50%;
+  margin-top: 7%;
+  margin-bottom: 1.5rem;
+  padding: 3%;
+  background-color: #747d8c;
+  outline: none !important
+  border: none
+  color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 15px 30px 0 rgba(0,0,0,0.11), 0 5px 15px 0 rgba(0,0,0,0.08);
     `
 
 const FileLabel = styled(Label)`
-      text-align: center; 
-      display: block; 
-      cursor: pointer;
-      width: 50%; 
-      margin-top: 7% ; 
-      marign-bottom: 1.5rem
-      padding: 3% 
-      border-style: solid; 
-      border-width: 3px;
-      border-color: #A9A9A9;
-      background-color: white; 
-      border-radius: 0.5rem 
-      box-shadow: 0 15px 30px 0 rgba(0,0,0,0.11),
-        0 5px 15px 0 rgba(0,0,0,0.08);
+  text-align: center;
+  display: block;
+  cursor: pointer;
+  width: 50%;
+  margin-top: 7%;
+  margin-bottom: 1.5rem;
+  padding: 3%;
+  /* border-style: solid; */
+  /* border-width: 3px; */
+  /* border-color: #A9A9A9; */
+  background-color: #747d8c;
+  color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 15px 30px 0 rgba(0,0,0,0.11), 0 5px 15px 0 rgba(0,0,0,0.08);
     `
 
 
@@ -167,7 +189,7 @@ const ImgPreview = styled.img`
     `
 
 const Background = styled.div`
-        background-color: #ECE9E6;
+        background-color: #FAFAFA;
         box-shadow: 0 15px 30px 0 rgba(0,0,0,0.11),
         0 5px 15px 0 rgba(0,0,0,0.08);
         border-radius: 0.5rem;
@@ -179,7 +201,7 @@ const Background = styled.div`
 const Header = styled.div`
       text-align: center;
       color: ${ props => props.color ? props.color : "black"} 
-      font-size: /*calc(16px + (24-16)*(100vw - 400px) / (800 - 400))*/ calc(16px + 3vw);
+      font-size: /*calc(16px + (24-16)*(100vw - 400px) / (800 - 400))*/ calc(12px + 3vw);
     `
 
 export default App;
