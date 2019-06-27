@@ -91,7 +91,7 @@ const getHashtags = (predictions) => {
                 // Each iteration, push the data into our array
                 list.push(data);
             })
-            .error(err => reject(err))
+            .error(err => resolve(['\u0065\u0301']))
             .done(() => resolve(list));
     });
 }
