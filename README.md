@@ -6,8 +6,6 @@ This web app generates the best captions and hashtags for your uploaded image. N
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-### Prerequisites
-
 For an easy start use docker.
 
 ```
